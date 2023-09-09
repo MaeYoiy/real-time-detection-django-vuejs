@@ -1,47 +1,44 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import Vue from 'vue'
+import App from './App.vue'
+import WebSocketService from './WebSocketService'; // สร้างไฟล์ WebSocketService.js สำหรับการเชื่อมต่อ WebSocket
+
+Vue.config.productionTip = false
+
+new Vue({
+  render: h => h(App),
+}).$mount('#app')
+
+WebSocketService.connect(); // เชื่อมต่อ WebSocket เมื่อโหลดแอป
+
 </script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div id="app">
+    <h1>Real-time Object Detection</h1>
+    <video ref="webcam" autoplay playsinline width="640" height="480"></video>
+    <canvas ref="output" width="640" height="480"></canvas>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script>
+export default {
+  mounted() {
+    this.setupCamera();
+  },
+  methods: {
+    async setupCamera() {
+      const videoElement = this.$refs.webcam;
+      const constraints = {
+        video: true
+      };
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoElement.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing the webcam:', error);
+      }
+    }
   }
 }
-</style>
+</script>
